@@ -1,0 +1,60 @@
+version: '3.9'
+services:
+  frontend:
+    build:
+      # frontend配下に変更
+      context: ./frontend
+      dockerfile: Dockerfile
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    ports:
+      - '8000:8000'
+    networks:
+      vite_rails_net:
+        ipv4_address: '172.28.0.3'
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    volumes:
+      - './backend:/app'
+    environment:
+      TZ: UTC
+      # DBに設定したIPを指定
+      DB_HOST: 172.28.0.5
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+    ports:
+      - '3000:3000'
+    networks:
+      vite_rails_net:
+        ipv4_address: '172.28.0.4'
+    # backendを起動する際はDBも起動する
+    depends_on:
+      - db
+
+  db:
+    platform: linux/x86_64
+    command: --default-authentication-plugin=mysql_native_password
+    image: mysql:8.0.28
+    volumes:
+      - './db/data:/var/lib/mysql'
+    environment:
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+    ports:
+      - '3306:3306'
+    networks:
+      vite_rails_net:
+        ipv4_address: '172.28.0.5'
+
+# ネットワーク作成
+networks:
+  vite_rails_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/24
+

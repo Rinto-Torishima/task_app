@@ -1,0 +1,46 @@
+# バンドルした依存関係
+/vendor/
+# Rails サーバーに関するファイル
+/log/*
+/tmp/*
+# MySQL関連
+/db/*.sql
+/db/schema.rb
+/db/development.mysql2
+/db/test.mysql2
+/public/assets/
+/public/packs/
+/public/packs-test/
+/node_modules/
+
+# Rails キャッシュ
+/cache/
+
+# バックエンド用の秘密鍵、設定ファイル
+/config/master.key
+/config/credentials.yml.enc
+/config/database.yml
+
+# その他の無視すべきファイル
+*.gem
+*.rbc
+*.sassc
+*.env
+
+# IDEやエディタの設定
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Docker関連
+.docker/
+
+# コンパイルされたファイル
+*.o
+*.so
+
+# 設定ファイルや環境に依存するファイル
+*.log
+*.pid
+*.seed
