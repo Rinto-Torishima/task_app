@@ -67,9 +67,9 @@
               <button
                 v-else
                 @click="cancelEdit"
-                class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+                class="bg-gray-400 text-white px-4 py-2  rounded hover:bg-gray-500"
               >
-                キャンセル
+                戻る
               </button>
             </div>
             <!-- 削除ボタン -->
