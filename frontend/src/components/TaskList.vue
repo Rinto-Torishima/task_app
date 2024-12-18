@@ -2,12 +2,12 @@
   <div class="min-h-screen bg-gray-100 py-8 px-4">
     <div class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
       <h1 class="text-2xl font-bold text-gray-800 mb-6">タスク一覧</h1>
-      <a
-        href="/create"
+      <router-link
+        to="/create"
         class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4"
       >
         タスク作成
-      </a>
+      </router-link>
       <ul class="space-y-4">
         <li
           v-for="task in filteredTasks"

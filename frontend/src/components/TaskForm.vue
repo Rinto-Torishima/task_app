@@ -34,15 +34,16 @@
         </button>
         
         <!-- タスク一覧へのリンク -->
-        <a href="/" class="inline-block mt-4 text-center w-full text-blue-600 hover:underline">
+        <router-link to="/" class="inline-block mt-4 text-center w-full text-blue-600 hover:underline">
           タスク一覧
-        </a>
+        </router-link>
       </form>
     </div>
   </div>
 </template>
 
 <script>
+import router from '@/router';
 import axios from 'axios';
 
 export default {
