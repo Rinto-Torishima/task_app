@@ -45,6 +45,8 @@
 <script>
 import router from '@/router';
 import axios from 'axios';
+import { useToast } from "vue-toastification";
+
 
 export default {
   data() {
@@ -58,17 +60,18 @@ export default {
   },
   methods: {
     async createTask() {
+      const toast = useToast();
       try {
         const response = await axios.post('/api/v1/tasks', {
           task: this.task,
         });
-        alert('タスクが作成されました', response.data);
+        toast.success("タスクが作成されました");
         // タスク作成後にフィールドをリセット
         this.task.title = '';
         this.task.description = '';
         this.task.completed = false;
       } catch (error) {
-        alert('タスクの作成に失敗しました', error.response.data);
+        toast.error("タスクの作成に失敗しました");
       }
     },
   },
