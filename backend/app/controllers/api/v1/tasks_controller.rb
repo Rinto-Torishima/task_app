@@ -16,7 +16,7 @@ module Api
             render json: { errors: task.errors.full_messages }, status: :unprocessable_entity
           end
         end
-
+              
         # タスクを更新 (完了状態の変更など)
       def update
         task = Task.find(params[:id])
@@ -40,7 +40,7 @@ module Api
   
         # Strong parameters: タスクの入力内容を検証
         def task_params
-          params.require(:task).permit(:title, :description, :completed)
+          params.require(:task).permit(:title, :description, :completed, tag_ids: [])
         end
       end
     end

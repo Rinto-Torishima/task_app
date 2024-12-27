@@ -26,6 +26,7 @@
                 v-else
                 v-model="editForm.title"
                 @keyup.enter="saveEdit(task.id)"
+                @blur="saveEdit(task.id)"
                 placeholder="タイトルを編集"
                 class="w-full p-2 border border-gray-300 rounded-md mt-2"
               />
@@ -41,20 +42,28 @@
                 v-else
                 v-model="editForm.description"
                 @keyup.enter="saveEdit(task.id)"
+                @blur="saveEdit(task.id)"
                 placeholder="説明を編集"
                 class="w-full p-2 border border-gray-300 rounded-md mt-2"
               ></textarea>
             </div>
           </div>
           <div class="flex flex-col items-end space-y-2 w-1/4">
-            <!-- 完了ボタン -->
+            <!-- 完了・未完了ボタン -->
             <button
-              v-if="!task.completed"
+              v-if="task.completed"
+              @click="markAsIncomplete(task.id)"
+              class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+            >
+              未完了
+            </button>
+            <button
+              v-else
               @click="markAsCompleted(task.id)"
               class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
             >
               完了
-            </button>
+            </button>            
             <!-- 編集/キャンセルボタン -->
             <div>
               <button
@@ -119,7 +128,10 @@ export default {
     async fetchTasks() {
       try {
         const response = await axios.get('/api/v1/tasks');
-        this.tasks = response.data;
+        this.tasks = response.data.sort((a, b) => {
+          // 未完了の優先度が高い（false が上）
+          return a.completed - b.completed;
+        });      
       } catch (error) {
         console.error('タスクの取得に失敗しました', error);
       }
@@ -132,10 +144,34 @@ export default {
         this.tasks = this.tasks.map(task =>
           task.id === updatedTask.id ? updatedTask : task
         );
+
+        // 編集中のタスクが削除された場合に編集状態をリセット
+        if (this.editForm.id === taskId) {
+          this.cancelEdit();
+        }
+
       } catch (error) {
         console.error('タスクの更新に失敗しました', error);
       }
     },
+    async markAsIncomplete(taskId) {
+      try {
+        const response = await axios.put(`/api/v1/tasks/${taskId}`, { completed: false });
+        const updatedTask = response.data;
+
+        this.tasks = this.tasks.map(task =>
+          task.id === updatedTask.id ? updatedTask : task
+        );
+
+        if (this.editForm.id === taskId) {
+          this.cancelEdit();
+        }
+
+      } catch (error) {
+        console.error('タスクの更新に失敗しました', error);
+      }
+    },
+
     async deleteTask(taskId) {
       try {
         await axios.delete(`/api/v1/tasks/${taskId}`);
