@@ -2,31 +2,42 @@ module Api
     module V1
       class TasksController < ApplicationController
         # タスクの一覧を取得
-        def index
-          tasks = Task.all
-          render json: tasks
-        end
-  
+      def index
+        tasks = Task.includes(:tags).all
+        render json: tasks.as_json(include: :tags)
+      end  
         # 新しいタスクを作成
-        def create
-          task = Task.new(task_params)
-          if task.save
-            render json: task, status: :created
-          else
-            render json: { errors: task.errors.full_messages }, status: :unprocessable_entity
+      def create
+        task = Task.new(task_params)
+        if task.save
+          # タグが選択されている場合、タスクにタグを関連付け
+          if params[:task][:tag_ids]
+            # 重複を防ぐためにsyncを使用
+            task.tags = Tag.where(id: params[:task][:tag_ids])
           end
-        end
-              
-        # タスクを更新 (完了状態の変更など)
-      def update
-        task = Task.find(params[:id])
-        if task.update(task_params)
-          render json: task
+          render json: task, status: :created
         else
           render json: { errors: task.errors.full_messages }, status: :unprocessable_entity
         end
       end
-  
+
+        # タスクを更新 (完了状態の変更など)
+        def update
+          task = Task.find(params[:id])
+        
+          Task.transaction do
+            if task.update(task_params)
+              if params[:tag_ids]
+                task.tags = Tag.where(id: params[:tag_ids])
+              end
+              render json: task.as_json(include: :tags)
+            else
+              render json: { errors: task.errors.full_messages }, status: :unprocessable_entity
+            end
+          end
+        rescue => e
+          render json: { errors: ["更新中にエラーが発生しました: #{e.message}"] }, status: :unprocessable_entity
+        end
       # タスクを削除
       def destroy
         task = Task.find(params[:id])

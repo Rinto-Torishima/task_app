@@ -47,6 +47,33 @@
                 class="w-full p-2 border border-gray-300 rounded-md mt-2"
               ></textarea>
             </div>
+            <div v-if="task.tags && task.tags.length > 0" class="mt-2">
+              <span
+                v-for="tag in task.tags"
+                :key="tag.id"
+                class="inline-block bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-sm mr-2"
+              >
+                {{ tag.name }}
+              </span>
+            </div>
+            <div v-if="isEditing(task.id)" class="mt-4">
+              <h3 class="text-gray-700 font-semibold mb-2">タグ編集</h3>
+              <div>
+                <label
+                  v-for="tag in allTags"
+                  :key="tag.id"
+                  class="inline-flex items-center mr-4"
+                >
+                  <input
+                    type="checkbox"
+                    :value="tag.id"
+                    v-model="editForm.tag_ids"
+                    class="mr-1"
+                  />
+                  {{ tag.name }}
+                </label>
+              </div>
+            </div>
           </div>
           <div class="flex flex-col items-end space-y-2 w-1/4">
             <!-- 完了・未完了ボタン -->
@@ -108,11 +135,13 @@ export default {
   data() {
     return {
       tasks: [],
+      allTags: [],
       showAll: false,
       editForm: {
         id: null,
         title: "",
         description: "",
+        tag_ids: [],
       },
     };
   },
@@ -123,6 +152,7 @@ export default {
   },
   created() {
     this.fetchTasks();
+    this.fetchTags();
   },
   methods: {
     async fetchTasks() {
@@ -134,6 +164,14 @@ export default {
         });      
       } catch (error) {
         console.error('タスクの取得に失敗しました', error);
+      }
+    },
+    async fetchTags() {
+      try {
+        const response = await axios.get('/api/v1/tags');
+        this.allTags = response.data;
+      } catch (error) {
+        console.error('タグの取得に失敗しました', error);
       }
     },
     async markAsCompleted(taskId) {
@@ -184,6 +222,7 @@ export default {
       this.editForm.id = task.id;
       this.editForm.title = task.title;
       this.editForm.description = task.description;
+      this.editForm.tag_ids = task.tags.map(tag => tag.id);
     },
     isEditing(taskId) {
       return this.editForm.id === taskId;
@@ -198,6 +237,7 @@ export default {
         const response = await axios.put(`/api/v1/tasks/${taskId}`, {
           title: this.editForm.title,
           description: this.editForm.description,
+          tag_ids: this.editForm.tag_ids
         });
         const updatedTask = response.data;
 

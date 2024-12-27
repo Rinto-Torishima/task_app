@@ -19,11 +19,13 @@
           class="w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         ></textarea>
 
-        <!-- 完了チェックボックス (コメントアウト) -->
-        <!-- <label>
-          完了:
-          <input type="checkbox" v-model="task.completed" />
-        </label> -->
+        <!-- タグ選択 -->
+        <div class="mb-4">
+          <label class="block text-sm font-semibold text-gray-800">タグ</label>
+          <select v-model="task.tag_ids" multiple class="w-full p-2 border border-gray-300 rounded-md">
+            <option v-for="tag in tags" :key="tag.id" :value="tag.id">{{ tag.name }}</option>
+          </select>
+        </div>
 
         <!-- 作成ボタン -->
         <button
@@ -43,10 +45,8 @@
 </template>
 
 <script>
-import router from '@/router';
 import axios from 'axios';
-import { useToast } from "vue-toastification";
-
+import { useToast } from 'vue-toastification';
 
 export default {
   data() {
@@ -55,25 +55,38 @@ export default {
         title: '',
         description: '',
         completed: false,
+        tag_ids: []  // タグIDを格納する配列
       },
+      tags: []  // サーバーから取得したタグのリスト
     };
   },
+  created() {
+    this.fetchTags();  // タグのリストを取得
+  },
   methods: {
+    async fetchTags() {
+      try {
+        const response = await axios.get('/api/v1/tags');
+        this.tags = response.data;
+      } catch (error) {
+        console.error('タグの取得に失敗しました', error);
+      }
+    },
     async createTask() {
       const toast = useToast();
       try {
         const response = await axios.post('/api/v1/tasks', {
-          task: this.task,
+          task: this.task
         });
-        toast.success("タスクが作成されました");
-        // タスク作成後にフィールドをリセット
+        toast.success('タスクが作成されました');
         this.task.title = '';
         this.task.description = '';
         this.task.completed = false;
+        this.task.tag_ids = [];
       } catch (error) {
-        toast.error("タスクの作成に失敗しました");
+        toast.error('タスクの作成に失敗しました');
       }
-    },
-  },
+    }
+  }
 };
 </script>
