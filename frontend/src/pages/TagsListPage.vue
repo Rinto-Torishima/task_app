@@ -14,7 +14,7 @@
           タスク一覧
         </router-link>
         <ul class="space-y-4">
-          <TagItem v-for="tag in tags" :key="tag.id" :tag="tag" />
+          <TagItem v-for="tag in tags" :key="tag.id" :tag="tag" @tagDeleted="handleTagDeleted"/>
         </ul>
       </PageLayout>
   </template>
@@ -23,7 +23,6 @@
   import axios from 'axios';
   import TagItem from '@/components/TagItem.vue';
   import PageLayout from '@/components/PageLayout.vue';
-import router from '@/router';
   
   export default {
     components: {
@@ -47,6 +46,9 @@ import router from '@/router';
           console.error('タグの取得に失敗しました', error);
         }
       },
+      handleTagDeleted(tagId) {
+        this.tags = this.tags.filter(tag => tag.id !== tagId);
+        },
     },
   };
   </script>
