@@ -38,8 +38,6 @@ module Api
       rescue => e
         render json: { errors: ["更新中にエラーが発生しました: #{e.message}"] }, status: :unprocessable_entity
       end
-      # タスクを削除
-      # ここの記述戻して、cascadeにするかも
       def destroy
         task = Task.find_by(id: params[:id])
       
@@ -47,11 +45,9 @@ module Api
           render json: { errors: "タスクが見つかりません" }, status: :not_found
           return
         end
-        
+      
         begin
-          # 関連する task_tags を削除
-          task.tags.clear # または task.task_tags.destroy_all で関連するタグを削除
-          
+          # これで関連する task_tags は自動的に削除される
           task.destroy!
           render json: { message: "タスクを削除しました" }, status: :ok
         rescue ActiveRecord::RecordNotDestroyed => e
