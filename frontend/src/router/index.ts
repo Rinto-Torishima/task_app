@@ -1,9 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import TaskList from '../components/TaskList.vue';
-import TaskForm from '../components/TaskForm.vue';
-import TagsList from '../components/TagsList.vue';
-import TagsCreate from '../components/TagsCreate.vue';
-
+import TaskList from '@/pages/TaskListPage.vue';
+import TaskForm from '@/pages/TaskFormPage.vue';
+import TagsListPage from '@/pages/TagsListPage.vue';
+import TagsCreatePage from '@/pages/TagsCreatePage.vue';
 
 const routes = [
   { path: '/', component: TaskList },
@@ -11,12 +10,12 @@ const routes = [
   {
     path: '/tags',
     name: 'TagsList',
-    component: TagsList,
+    component: TagsListPage,
   },
   {
     path: '/tags/create',
     name: 'TagsCreate',
-    component: TagsCreate,
+    component: TagsCreatePage,
   },
 ];
 

@@ -22,29 +22,40 @@ module Api
       end
 
         # タスクを更新 (完了状態の変更など)
-        def update
-          task = Task.find(params[:id])
-        
-          Task.transaction do
-            if task.update(task_params)
-              if params[:tag_ids]
-                task.tags = Tag.where(id: params[:tag_ids])
-              end
-              render json: task.as_json(include: :tags)
-            else
-              render json: { errors: task.errors.full_messages }, status: :unprocessable_entity
-            end
-          end
-        rescue => e
-          render json: { errors: ["更新中にエラーが発生しました: #{e.message}"] }, status: :unprocessable_entity
-        end
-      # タスクを削除
-      def destroy
+      def update
         task = Task.find(params[:id])
-        if task.destroy
+      
+        Task.transaction do
+          if task.update(task_params)
+            if params[:tag_ids]
+              task.tags = Tag.where(id: params[:tag_ids])
+            end
+            render json: task.as_json(include: :tags)
+          else
+            render json: { errors: task.errors.full_messages }, status: :unprocessable_entity
+          end
+        end
+      rescue => e
+        render json: { errors: ["更新中にエラーが発生しました: #{e.message}"] }, status: :unprocessable_entity
+      end
+      # タスクを削除
+      # ここの記述戻して、cascadeにするかも
+      def destroy
+        task = Task.find_by(id: params[:id])
+      
+        if task.nil?
+          render json: { errors: "タスクが見つかりません" }, status: :not_found
+          return
+        end
+        
+        begin
+          # 関連する task_tags を削除
+          task.tags.clear # または task.task_tags.destroy_all で関連するタグを削除
+          
+          task.destroy!
           render json: { message: "タスクを削除しました" }, status: :ok
-        else
-          render json: { errors: "タスクの削除に失敗しました" }, status: :unprocessable_entity
+        rescue ActiveRecord::RecordNotDestroyed => e
+          render json: { errors: "タスクの削除に失敗しました: #{e.message}" }, status: :unprocessable_entity
         end
       end
         private
