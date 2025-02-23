@@ -3,7 +3,7 @@ class CreateTasks < ActiveRecord::Migration[6.1]
     create_table :tasks do |t|
       t.string :title
       t.text :description
-      t.boolean :completed
+      t.boolean :completed, null: false, default: false
 
       t.timestamps
     end
