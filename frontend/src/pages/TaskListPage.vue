@@ -30,8 +30,6 @@
             <input
               v-else
               v-model="editForm.title"
-              @keyup.enter="saveEdit(task.id)"
-              @blur="saveEdit(task.id)"
               placeholder="タイトルを編集"
               class="w-full p-2 border border-gray-300 rounded-md mt-2"
             />
@@ -46,11 +44,12 @@
             <textarea
               v-else
               v-model="editForm.description"
-              @keyup.enter="saveEdit(task.id)"
-              @blur="saveEdit(task.id)"
               placeholder="説明を編集"
               class="w-full p-2 border border-gray-300 rounded-md mt-2"
             ></textarea>
+          </div>
+          <div v-if="isEditing(task.id)" class="mt-2">
+            <button @click="saveEdit(task.id)" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">保存</button>
           </div>
           <div v-if="task.tags && task.tags.length > 0" class="mt-2">
             <span
